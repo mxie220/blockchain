@@ -3,7 +3,7 @@ Exercise 1: Finding the nounce.
 Author: Michelle Xie
 '''
 
-import hashlib, string
+import hashlib, string, datetime
 
 def build_nounce(start_list, alphanumeric):
     output_list = []
@@ -18,12 +18,11 @@ def try_hash(input_string, nounce):
     text = input_string + nounce
     hash_result = hashlib.sha256(str.encode(text)).hexdigest()
     if hash_result[0:4] == '0000':
-        print("nounce found:", nounce)
+        print("Nounce found: {0}".format(nounce))
         return True
-    print("false:", nounce)
+    print("False: {0}, search continues.".format(nounce))
     return False
             
-
 def find_nounce(input_string, alphanumeric):
     nounce_list = build_nounce([], alphanumeric)
     while len(nounce_list) > 0:
@@ -36,6 +35,11 @@ def find_nounce(input_string, alphanumeric):
 
 def main():
     alphanumeric = string.ascii_letters + string.digits
-    find_nounce('3', alphanumeric)
+    print("Please enter input:\t")
+    user_input = input()
+    start_time = datetime.datetime.today()
+    find_nounce(user_input, alphanumeric)
+    end_time = datetime.datetime.today()
+    print("Time taken: {0}".format(str(end_time-start_time)))
 
 main()

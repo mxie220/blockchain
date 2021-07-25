@@ -9,7 +9,7 @@ Author: Michelle Xie
 **Exercise 1: Finding the nounce**
 
 Proof-of-work: Find a nounce that gives a hash starting with 4 bits of zeros, '0000'.
-The average work required is exponential to the number of bits of zero so for this problem, we are expecting the average time it takes to find a nounce for a string of a total length 100 to be 100^4 = 1
+The average work required is exponential to the number of bits of zero so for this problem, we are expecting the average time it takes to find a nounce for a string of a total length 100 to be 100^4 = 100000000. 
 
 Result:
 

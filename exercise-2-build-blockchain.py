@@ -5,12 +5,13 @@ Author: Michelle Xie
 class block:
 
     def __init__(self):
-        __self.hash = None
-        __self.previousBlock = None
-        __self.nextBlock = None
+        self.hash = None
+        self.previousBlock = None
+        self.nextBlock = None
+        self.minerId = None
 
     def setHash(self, hash):
-        __self.hash = hash
+        self.hash = hash
     
     def getHash(self):
         return self.hash
@@ -19,13 +20,20 @@ class block:
         return self.previousBlock
     
     def setPreviousBlock(self, previousBlock):
-        __self.previousBlock = previousBlock
+        self.previousBlock = previousBlock
 
     def getNextBlock(self):
         return self.nextBlock
     
     def setNextBlock(self, nextBlock):
-        __self.previousBlock = nextBlock
+        self.nextBlock = nextBlock
+
+    def setMinerId(self, minerId):
+        self.minerId = minerId
+    
+
+class nounce:
+
     
 
 class blockchain:
@@ -33,4 +41,9 @@ class blockchain:
     def __init__(self):
         self.chain = []
 
-    def mineTheNextBlock(self, )
+    def buildABlockchain(self, numberOfBlocks):
+        genesisBlock = block().setMinerId(0)
+        
+
+    def mineTheNextBlock(self, currentBlock):
+        

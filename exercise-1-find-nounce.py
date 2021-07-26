@@ -35,17 +35,17 @@ def try_hash(input_string, nounce):
 def find_nounce(input_string, alphanumeric, length):
     try:
         nounce_length = length - len(input_string)
-        filename = os.getcwd() + '/' + input_string + '.bz2'
+        filename = os.getcwd() + '/' + input_string
         if os.path.exists(filename):
             print("Previous state has been found for this input. Would you like to resume?")
             print("Y = yes")
             print("N = no")
             resume = input()
             if resume == "Y" or resume == "yes" or resume == "Yes" or resume == "YES" or resume == "y":
-                input_file = bz2.BZ2File(filename, 'rb')
-                nounce_list = pickle.load(input_file)
+                input_file = open(filename, 'rb')
+                decompress_data = bz2.decompress(pickle.load(input_file))
+                nounce_list = pickle.loads(decompress_data)
                 input_file.close()
-                print(type(nounce_list))
             else:
                 nounce_list = build_nounce([], alphanumeric, nounce_length)
             # os.remove(filename)
@@ -65,8 +65,9 @@ def find_nounce(input_string, alphanumeric, length):
         print("N = no")
         state = input()
         if state == "Y" or state == "y" or state == "yes" or state == "Yes" or state == "YES":
-            output_file = bz2.BZ2File(filename, 'wb')
-            pickle.dump(nounce_list, output_file)
+            compress_data = bz2.compress(pickle.dumps(nounce_list))
+            output_file = open(filename, 'wb')
+            pickle.dump(compress_data, output_file)
             output_file.close()
             print("State saved to {0}".format(filename))
 

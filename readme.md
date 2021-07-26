@@ -26,3 +26,5 @@ Result:
 
 **Exercise 2: Constructing and verifying a blockchain**
 
+Basically for the genesis block, start with '0' as minerId and find a nounce that is 99 in length. 
+For all other blocks (the next 9) because I only need to build 10 blocks for the chain, you nee

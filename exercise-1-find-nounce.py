@@ -4,7 +4,6 @@ Author: Michelle Xie
 '''
 
 import hashlib, string, datetime, pickle, os, bz2
-from typing import Type
 
 def build_nounce(start_list, alphanumeric, nounce_length):
     output_list = []
@@ -49,7 +48,7 @@ def find_nounce(input_string, alphanumeric, length):
                 print(type(nounce_list))
             else:
                 nounce_list = build_nounce([], alphanumeric, nounce_length)
-            os.remove(filename)
+            # os.remove(filename)
         else:
             nounce_list = build_nounce([], alphanumeric, nounce_length)
 

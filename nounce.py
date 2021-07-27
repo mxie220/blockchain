@@ -2,7 +2,7 @@
 Exercise 2: Nounce
 Author: Michelle Xie
 '''
-import hashlib, string, pickle, os, bz2
+import hashlib, string, pickle, os, gzip
 
 class nounce:
 
@@ -12,24 +12,40 @@ class nounce:
     def getNounceValue(self, value, length):
         try:
             nounceLength = length - len(value)
-            filename = os.getcwd() + '/' + value + '.bz2'
+            filename = os.getcwd() + '/' + value + '.txt.gz'
             if os.path.exists(filename):
+                print("Looks like you've done some work before. \nLet me reopen it.\n")
                 inputFile = open(filename, 'rb')
-                decompressData = bz2.decompress(pickle.load(inputFile))
+                decompressData = gzip.decompress(pickle.load(inputFile))
                 nList = pickle.loads(decompressData)
                 inputFile.close()
                 print("Resuming state from {0}".format(filename))
+                os.remove(filename)
             else:
                 nList = self.buildNounce([], nounceLength)
 
             while len(nList) > 0:
-                n = nList.pop(0)    
+                n = nList.pop(0)
                 if self.tryHash(value, n):
                     return n
                 else:
                     nList += self.buildNounce([n], length)
         except KeyboardInterrupt:
-            compressData = bz2.compress(pickle.dumps(nList))
+            print("Hold on, I'm trying to save your work.")
+            numOfFiles = round(len(nList)/1000000)
+            lastFile = len(nList) % 1000000
+            start = 0
+            end = 1000000
+            for fileNum in range(numOfFiles):
+                compressData = gzip.compress(pickle.dumps(nList[start:end]), compresslevel=1)
+                filename = os.getcwd() + '/' + value + '/' + str(fileNum) + '.txt.gz'
+                outputFile = open(filename, 'wb')
+                pickle.dump(compressData, outputFile)
+                outputFile.close()
+                start += 1000000
+                end += 1000000
+            compressData = gzip.compress(pickle.dumps(nList[len(nList)-lastFile:]), compresslevel=1)
+            filename = os.getcwd() + '/' + value + '/' + str(numOfFiles+1) + '.txt.gz'
             outputFile = open(filename, 'wb')
             pickle.dump(compressData, outputFile)
             outputFile.close()
@@ -49,7 +65,8 @@ class nounce:
                 for alpha in self.alphanumeric:
                     if not (n[characterIndex] == alpha):
                         newNounce = n[0:characterIndex] + alpha + n[characterIndex+1:]
-                        outputList.append(newNounce)
+                        if newNounce not in nList:
+                            outputList.append(newNounce)
                 characterIndex += 1
         return outputList
 

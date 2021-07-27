@@ -48,7 +48,7 @@ def find_nounce(input_string, alphanumeric, length):
                 input_file.close()
             else:
                 nounce_list = build_nounce([], alphanumeric, nounce_length)
-            # os.remove(filename)
+            os.remove(filename)
         else:
             nounce_list = build_nounce([], alphanumeric, nounce_length)
 

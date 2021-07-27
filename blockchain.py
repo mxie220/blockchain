@@ -11,17 +11,16 @@ class blockchain:
         self.chain = []
         self.currentBlock = block.block(value, length) 
         self.currentBlock.setMinerId(0)
-        self.chain.append({"nounce": self.currentBlock.getNounce(), "miner": self.getMinerId()})
+        self.chain.append({"nounce": self.currentBlock.getNounce(), "miner": self.currentBlock.getMinerId()})
 
     def build(self, numberOfBlocks):
-        self.chain.append()
         for num in range(1, numberOfBlocks):
             self.currentBlock = self.mineTheNextBlock(self.currentBlock)
             self.chain.append({"nounce": self.currentBlock.getNounce(), "miner": self.getMinerId()})
         return self.chain
 
     def mineTheNextBlock(self, currentBlock):
-        value = currentBlock.getHash() + currentBlock.getMinerId()
+        value = currentBlock.getHash() + str(currentBlock.getMinerId())
         nextBlock = block.block(value, 100)
         nextBlock.setMinerId(0)
         text = currentBlock.getHash() + nextBlock.getMinerId() + nextBlock.getNounce()

@@ -4,6 +4,63 @@ Author: Michelle Xie
 '''
 import hashlib, string, pickle, os, gzip
 
+def saveFile(nList, value, increment):
+    print("Hold on, I'm trying to save your work.")
+    numOfFiles = round(len(nList)/increment) 
+    if numOfFiles > 0:
+        start = 0
+        end = increment
+        os.chdir(os.getcwd())
+        os.mkdir(value)
+        os.chdir(os.getcwd() + '/' + value)
+        for fileNum in range(numOfFiles):
+            compressData = gzip.compress(pickle.dumps(nList[start:end]), compresslevel=1)
+            filename = str(fileNum) + '.txt.gz'
+            outputFile = open(filename, 'wb')
+            pickle.dump(compressData, outputFile)
+            outputFile.close()
+            print("Progress: {0}%.".format(fileNum/numOfFiles * 100))
+            start += increment
+            end += increment
+
+        lastFile = len(nList) % increment
+        compressData = gzip.compress(pickle.dumps(nList[len(nList)-lastFile:]), compresslevel=1)
+        filename = str(lastFile) + '.txt.gz'
+        outputFile = open(filename, 'wb')
+        pickle.dump(compressData, outputFile)
+        outputFile.close()
+        print("States saved to {0}".format(filename))
+    else:
+        compressData = gzip.compress(pickle.dumps(nList), compresslevel=1)
+        filename = value + '.txt.gz'
+        outputFile = open(filename, 'wb')
+        pickle.dump(compressData, outputFile)
+        outputFile.close()
+        print("States saved to {0}".format(filename))
+
+
+def loadFile(value, filename):
+    print("Looks like you've done some work before. \nLet me reopen it.\n")
+    nList = []
+    os.chdir(filename)
+    for f in os.listdir(filename):
+        inputFile = open(f, 'rb')
+        decompressData = gzip.decompress(pickle.load(inputFile))
+        nList += pickle.loads(decompressData)
+        inputFile.close()
+        os.remove(f)
+    print("Resuming state from {0}".format(filename))
+
+
+def sha256hash(value, n):
+    text = value + n
+    hashResult = hashlib.sha256(str.encode(text)).hexdigest()
+    if hashResult[0:4] == '0000':
+        print("Nounce found: {0}".format(n))
+        return True
+    print("False: {0}. Search continues.".format(n))
+    return False
+
 class nounce:
 
     def __init__(self):
@@ -12,44 +69,21 @@ class nounce:
     def getNounceValue(self, value, length):
         try:
             nounceLength = length - len(value)
-            filename = os.getcwd() + '/' + value + '.txt.gz'
+            filename = os.path.join(os.getcwd(), value)
             if os.path.exists(filename):
-                print("Looks like you've done some work before. \nLet me reopen it.\n")
-                inputFile = open(filename, 'rb')
-                decompressData = gzip.decompress(pickle.load(inputFile))
-                nList = pickle.loads(decompressData)
-                inputFile.close()
-                print("Resuming state from {0}".format(filename))
-                os.remove(filename)
+                nList = loadFile(value, filename)
+                os.rmdir(filename)
             else:
                 nList = self.buildNounce([], nounceLength)
 
             while len(nList) > 0:
-                n = nList.pop(0)
-                if self.tryHash(value, n):
+                n = nList.pop()
+                if sha256hash(value, n):
                     return n
                 else:
                     nList += self.buildNounce([n], length)
         except KeyboardInterrupt:
-            print("Hold on, I'm trying to save your work.")
-            numOfFiles = round(len(nList)/1000000)
-            lastFile = len(nList) % 1000000
-            start = 0
-            end = 1000000
-            for fileNum in range(numOfFiles):
-                compressData = gzip.compress(pickle.dumps(nList[start:end]), compresslevel=1)
-                filename = os.getcwd() + '/' + value + '/' + str(fileNum) + '.txt.gz'
-                outputFile = open(filename, 'wb')
-                pickle.dump(compressData, outputFile)
-                outputFile.close()
-                start += 1000000
-                end += 1000000
-            compressData = gzip.compress(pickle.dumps(nList[len(nList)-lastFile:]), compresslevel=1)
-            filename = os.getcwd() + '/' + value + '/' + str(numOfFiles+1) + '.txt.gz'
-            outputFile = open(filename, 'wb')
-            pickle.dump(compressData, outputFile)
-            outputFile.close()
-            print("State saved to {0}".format(filename))
+            return saveFile(nList, value, 100000)
 
     def buildNounce(self, nList, length):
         outputList = []
@@ -70,11 +104,3 @@ class nounce:
                 characterIndex += 1
         return outputList
 
-    def tryHash(self, value, n):
-        text = value + n
-        hashResult = hashlib.sha256(str.encode(text)).hexdigest()
-        if hashResult[0:4] == '0000':
-            print("Nounce found: {0}".format(n))
-            return True
-        print("False: {0}. Search continues.".format(n))
-        return False

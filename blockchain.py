@@ -20,7 +20,7 @@ class blockchain:
         return self.chain
 
     def mineTheNextBlock(self, currentBlock):
-        value = currentBlock.getHash() + str(currentBlock.getMinerId())
+        value = str(currentBlock.getHash()) + str(currentBlock.getMinerId())
         nextBlock = block.block(value, 100)
         nextBlock.setMinerId(0)
         text = currentBlock.getHash() + nextBlock.getMinerId() + nextBlock.getNounce()
@@ -35,6 +35,5 @@ class blockchain:
 def main():
     print("Building a blockchain:\n")
     bc = blockchain("0", 100)
-    bc.build(10)
 
 main()

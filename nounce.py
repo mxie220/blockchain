@@ -43,13 +43,18 @@ def loadFile(value, filename):
     print("Looks like you've done some work before. \nLet me reopen it.\n")
     nList = []
     os.chdir(filename)
+    count = 1
+    length = len(os.listdir(filename))
     for f in os.listdir(filename):
         inputFile = open(f, 'rb')
         decompressData = gzip.decompress(pickle.load(inputFile))
         nList += pickle.loads(decompressData)
         inputFile.close()
         os.remove(f)
+        print("Progress: {0}%.".format(count/length * 100))
+        count += 1
     print("Resuming state from {0}".format(filename))
+    return nList
 
 
 def sha256hash(value, n):
@@ -72,12 +77,13 @@ class nounce:
             filename = os.path.join(os.getcwd(), value)
             if os.path.exists(filename):
                 nList = loadFile(value, filename)
+                os.chdir('..')
                 os.rmdir(filename)
             else:
                 nList = self.buildNounce([], nounceLength)
 
             while len(nList) > 0:
-                n = nList.pop()
+                n = nList.pop(0)
                 if sha256hash(value, n):
                     return n
                 else:
@@ -93,14 +99,14 @@ class nounce:
                 outputList.append(character*length)
             return outputList
 
-        for n in nList:
-            characterIndex = 0
-            while characterIndex < len(n):
-                for alpha in self.alphanumeric:
-                    if not (n[characterIndex] == alpha):
-                        newNounce = n[0:characterIndex] + alpha + n[characterIndex+1:]
-                        if newNounce not in nList:
-                            outputList.append(newNounce)
-                characterIndex += 1
+        n = nList[0]
+        characterIndex = 0
+        while characterIndex < len(n):
+            for alpha in self.alphanumeric:
+                if not (n[characterIndex] == alpha):
+                    newNounce = n[0:characterIndex] + alpha + n[characterIndex+1:]
+                    outputList.append(newNounce)
+            characterIndex += 1
+        nList.pop(0)
         return outputList
 
